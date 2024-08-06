@@ -7,7 +7,7 @@
 
 ** 参考[博客](https://blog.csdn.net/weixin_46584887/article/details/120701003)
 
-### 一、apt 安装相关依赖库
+## 一、apt 安装相关依赖库
 
 执行以下命令更新源：
 
@@ -19,7 +19,7 @@
     sudo apt-get install libpython3.10-stdlib
 
 
-### 二、下载源码包
+## 二、下载源码包
 
 大家可以前往 Python 官网下载：Welcome to Pyhton! ，这里下载 gz 包和 xz 包都可以，下载链接如下：XZ compressed source tarball
 
@@ -36,12 +36,15 @@
     
 到此，准备工作就做好啦！
 
-### 三、源码包安装 Python3.10.8
-#### 1. 编译安装
+## 三、源码包安装 Python3.10.8
+### 1. 编译安装
 首先进入我们刚才解压的文件目录下：
 
     cd ~/Downloads/Python-3.10.8
 
+安装 GCC编译器：
+
+    sudo apt-get install gcc
 
 设置编译参数，即输出文件目录：
 
@@ -65,7 +68,7 @@
     WARNING: Running pip as the ‘root’ user can result in broken permissions and conflicting behaviour with the system package      manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
 
 
-#### 2. 设置软连接
+### 2. 设置软连接
 这一步即让我们的 python 命令能够链接到我们新安装的 Python3.10.0 的执行程序而不是更低的版本，我们首先进入到 /usr/bin 目录下：
 
     cd /usr/bin
@@ -88,7 +91,7 @@
 
 注：这里我们不能将系统中的 python3 命令链接到 python3.10 版本（这里我已经踩坑），因为 python3.10 版本还是发型版本，并不是稳定版本，若更改后则会导致 Ubuntu 系统下的很多 python 文件无法打开（比如你的 gnome 终端）！
 
-#### 3. 检验
+### 3. 检验
 输入以下命令，检验 Python 配置是否成功：
 
     python -V
@@ -109,7 +112,7 @@
 
 到这里我们的 Python3.10 就安装配置完成啦！
 
-#### 4. 更改 pip 依赖
+### 4. 更改 pip 依赖
 在安装后，若出现报错（可先执行 pip list 命令），则还需要修改 pip 的相关配置文件：
 
     sudo vim /usr/bin/lsb_release
