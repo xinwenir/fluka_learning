@@ -11,16 +11,13 @@
 
 执行以下命令更新源：
 
-    ```
     sudo apt-get update
-    ```
 
 执行以下命令安装 Python3 的一些依赖库：
 
-    ```
     sudo apt-get install libqgispython3.10.4
     sudo apt-get install libpython3.10-stdlib
-    ```
+
 
 ### 二、下载源码包
 
@@ -28,16 +25,15 @@
 
 也可使用 wget 下载，选一种方法即可：
 
-    ```
     wget -P ~/Downloads https://www.python.org/ftp/python/3.10.8/Python-3.10.8.tar.xz
-    ```
+
 
 接着解压 tar 包：
 
-    ```
+
     cd ~/Downloads
     tar xvJf Python-3.10.8.tar.xz
-    ```
+
     
 到此，准备工作就做好啦！
 
