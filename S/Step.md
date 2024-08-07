@@ -4,6 +4,10 @@
 ## Locate to the program directory：
     cd /mnt/d/xinwenir/PostDoctor/Nuclear_Science/FLUKA/flair-geoviewer-2.3-main
 
+# 安装 python
+
+    sudo apt-get install python3-dev
+
 # 安装 tkinter
 
 ## 运行 apt 安装：
