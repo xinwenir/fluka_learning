@@ -1,9 +1,63 @@
+# MD文件书写[格式](https://blog.csdn.net/carcarrot/article/details/119769300)
+
 # 采用 WSL 的 ubuntu22.04 编译 flair：
 ## Locate to the program directory：
     cd /mnt/d/xinwenir/PostDoctor/Nuclear_Science/FLUKA/flair-geoviewer-2.3-main
 
+# 安装 tkinter
 
-# Install python3.10.8: 
+## 运行 apt 安装：
+
+    sudo apt-get install python3-tk
+
+## 出现报错：
+
+    File "/usr/local/python3.8/lib/python3.8/tkinter/__init__.py", line 36, in <module>                                   
+        import _tkinter # If this fails your Python may not be configured for Tk                                            
+    ModuleNotFoundError: No module named '_tkinter' 
+
+创建目录：
+
+    sudo mkdir /usr/local/lib/python3.8/lib-dynload
+
+拷贝文件：
+
+    cd /usr/lib/python3.8/lib-dynload
+    cp 
+
+
+# win11卸载Ubuntu 20.04 WSL 的[方法](https://blog.csdn.net/bmseven/article/details/129365761)
+
+## 通过Windows终端卸载
+### 1、查看当前环境安装的wsl
+
+    wsl --list
+
+### 2、注销（卸载）当前安装的Linux的Windows子系统（名称要与list获取的一致）
+
+    wsl --unregister Ubuntu-20.04
+
+### 3、卸载成功，查看当前安装的Linux的Windows子系统
+
+    wsl --list
+
+
+# 卸载python3.8
+
+## 卸载python3.8：
+
+    sudo apt-get remove python3.8
+
+## 卸载python3.8及其依赖：
+
+    sudo apt-get remove --auto-remove python3.8
+
+## 清除python3.8：
+
+    sudo apt-get purge --auto-remove python3.8
+
+
+# Install python3.8.10: 
 
 ** 参考[博客](https://blog.csdn.net/weixin_46584887/article/details/120701003)
 
@@ -25,13 +79,13 @@
 
 也可使用 wget 下载，选一种方法即可：
 
-    wget -P ~/Downloads https://www.python.org/ftp/python/3.10.8/Python-3.10.8.tar.xz
+    wget -P ~/Downloads https://www.python.org/ftp/python/3.8.10/Python-3.8.10.tar.xz
 
 
 接着解压 tar 包：
 
     cd ~/Downloads
-    tar xvJf Python-3.10.8.tar.xz
+    tar xvJf Python-3.8.10.tar.xz
 
     
 到此，准备工作就做好啦！
@@ -48,13 +102,18 @@
 
 设置编译参数，即输出文件目录：
 
-    ./configure --prefix=/usr/local/python3.10
+    ./configure --prefix=/usr/local/python3.8
 
+安装 GCC编译器：
+
+    sudo apt-get install make
 
 接着实施编译：
 
     make
+安装 pip：
 
+    sudo apt-get install pip
 
 上面两步都会有大量输出，可能需要等待两三分钟，编译完成后安装：
 
@@ -85,9 +144,9 @@
 
 接着再设置新的软连接到我们的 Python3.10 版本：
 
-    sudo ln -s /usr/local/python3.10/bin/python3.10 /usr/bin/python
-    sudo ln -s /usr/local/python3.10/bin/pip3.10 /usr/bin/pip
-    sudo ln -s /usr/local/python3.10/bin/pip3.10 /usr/bin/pip3
+    sudo ln -s /usr/local/python3.8/bin/python3.8 /usr/bin/python
+    sudo ln -s /usr/local/python3.8/bin/pip3.8 /usr/bin/pip
+    sudo ln -s /usr/local/python3.8/bin/pip3.8 /usr/bin/pip3
 
 注：这里我们不能将系统中的 python3 命令链接到 python3.10 版本（这里我已经踩坑），因为 python3.10 版本还是发型版本，并不是稳定版本，若更改后则会导致 Ubuntu 系统下的很多 python 文件无法打开（比如你的 gnome 终端）！
 
