@@ -26,6 +26,13 @@
     cp 
 
 
+
+# [tk/tcl的安装](https://blog.csdn.net/RadiantJeral/article/details/108021607)
+
+# 找到X11/Xlib.h：
+
+    sudo apt-get install libx11-dev
+
 # win11卸载Ubuntu 20.04 WSL 的[方法](https://blog.csdn.net/bmseven/article/details/129365761)
 
 ## 通过Windows终端卸载
