@@ -1,25 +1,37 @@
 #!/bin/bash
-#-------------------------------library check part--------------------------
-Distributor='lsb_release -i'
-Distributor=${Distributor##*:}
-Release='lsb_release -r'
-Release=${Release##*:}
+# Get the current working directory
+Work_Path=$(pwd)/.. 
+echo "Working path: $Work_Path"
+cd "$Work_Path"
 
-if [ ${Distributor} != "Ubuntu" ];
-then
-    printf "Sorry, this file can not support $Distributor now!"
+#-------------------------------library check part--------------------------
+Distributor=$(lsb_release -i)
+Distributor=${Distributor##*:}
+# 使用tr命令删除开头和结尾的空格
+Distributor=$(tr -d '[:space:]' <<< $Distributor)
+echo "DEBUG: Distributor value is: [${Distributor}]"
+
+Release=$(lsb_release -r)
+Release=${Release##*:}
+# 使用tr命令删除开头和结尾的空格
+Release=$(tr -d '[:space:]' <<< $Release)
+echo "DEBUG: Release value is: [${Release}]"
+
+if [ "${Distributor}" != "Ubuntu" ]; then
+    printf "Sorry, this file can not support $Distributor now!\n"
     exit 0
 fi
-case $Release in
+
+case ${Release} in
     "20.04")
-        dependentPackage=("build-essential" "cmake"\
-                            "python3-dev" "python3-tk"
-                            "gfortran")
+        dependentPackage=("build-essential" "cmake" \
+                            "python3-dev" "python3-tk" \
+                            "gfortran" "libx11-dev" "wget")
                 ;;
     "22.04")
-        dependentPackage=("build-essential" "cmake"\
-                            "python3-dev" "python3-tk"
-                            "gfortran")
+        dependentPackage=("build-essential" "cmake" \
+                            "python3-dev" "python3-tk" \
+                            "gfortran" "libx11-dev" "wget")
                 ;;
     *)
         printf "Sorry, this file only supports Ubuntu 20.04 and 22.04 currently!\n"
@@ -33,35 +45,32 @@ uninstallNumber=0
 uninstallIdx=()
 
 index=0
-while(($index<${#dependentPackage[*]}))
-do
+while [ "${index}" -lt "${#dependentPackage[*]}" ]; do
     printf "%s  " ${dependentPackage[$index]}
-    p_check='dpkg -l | grep ${dependentPackage[$index]}'
-    if [ "$p_check"x == ""x]
-    then
+    p_check=$(dpkg -l | grep ${dependentPackage[$index]})
+    if [ -z "$p_check" ]; then
         printf "\033[36;1m[uninstalled]\033[0m\n"
         uninstallIdx[${uninstallNumber}]=$index
         let "uninstallNumber++"
     else
         printf "\033[36;1m[installed]\033[0m\n"
-    end
+    fi
     let "index++"
 done
 
 set -e
 
 idx=0
-while(($idx<$uninstallNumber))
-do
+while [ $idx -lt $uninstallNumber ]; do
     printf "\033[36;1m==========install dependent package============\033[0m\n"
     #check which should be installed now
-    printf "\033[45;5m%s\033[0m " ${dependentPackage[${uninstallIdx[idx]}]}
+    printf "\033[45;5m%s\033[0m " ${dependentPackage[${uninstallIdx[$idx]}]}
     #install
-    if! sudo apt install -y ${dependentPackage[${uninstallIdx[idx]}]}; then
-        printf "Error installing %s: %s\n" ${dependentPackage[${uninstallIdx[idx]}]} $?
+    if ! echo "1" | sudo -S apt install -y ${dependentPackage[${uninstallIdx[$idx]}]}; then
+        printf "Error installing %s: %s\n" ${dependentPackage[${uninstallIdx[$idx]}]} $?
     fi
+
     sleep 1
-    clear
     let "idx++"
 done
 
@@ -73,7 +82,7 @@ download_and_process_file() {
     local file_name=$(basename "$url")
 
     echo "Downloading the file from the internet: $file_name"
-    if! wget "$url"; then
+    if ! wget "$url"; then
         echo -e "\033[31;1mError: Failed to download the file $file_name. Please check the network connection or if the URL is correct!\033[0m"
         exit 1
     fi
@@ -87,7 +96,7 @@ check_and_extract_file() {
     local suffix=${file: -6}
     local file_base_name=$(basename "$file" ".tar.gz")
 
-    if [ "$suffix"x == "tar.gz"x ]; then
+    if [ "$suffix" == "tar.gz" ]; then
         if [ -f "$file" ]; then
             echo "The file $file exists, extracting..."
             tar -xzvf "$file"
@@ -97,11 +106,10 @@ check_and_extract_file() {
             tar -vzxf "$file" -C "./$file_base_name" --strip-components 1
 
             cd "./$file_base_name/unix"
-          ./configure
+            ./configure
             make
             sudo make install
             sleep 1
-            clear
         else
             echo -e "\033[31;1mError: The file $file does not exist. Please check the path or redownload it!\033[0m"
             exit 1
@@ -124,80 +132,66 @@ if [ $num_args == 1 ]; then
 else
     echo "Install tk/tcl from the internet"
 
-     # Check if wget is already installed
-    local wget_check=$(dpkg -l | grep 'wget')
-    if [ "$wget_check"x == ""x ]; then
-        echo "Installing the wget tool..."
-        if! sudo apt install -y wget; then
-            echo -e "\033[31;1mError: Failed to install wget. Please check the network connection or the software sources!\033[0m"
-            exit 1
-        fi
-    fi
-
+    cd "$Work_Path"
     # Download and process the tcl file
-    local tcl_url="http://prdownloads.sourceforge.net/tcl/tcl9.0.0-src.tar.gz"
+    tcl_url="http://prdownloads.sourceforge.net/tcl/tcl9.0.0-src.tar.gz"
     download_and_process_file "$tcl_url"
 
+    cd "$Work_Path"
     # Download and process the tk file
-    local tk_url="http://prdownloads.sourceforge.net/tcl/tk9.0.0-src.tar.gz"
+    tk_url="http://prdownloads.sourceforge.net/tcl/tk9.0.0-src.tar.gz"
     download_and_process_file "$tk_url"
 fi
 
 #-----------------FLUKA Installation--------------------------
+
+cd "$Work_Path"
+
+# Correcting the syntax for variable assignment
+fluka_install_path="$Work_Path/fluka"
+
+# Create the fluka installation path if it doesn't exist
+if [ ! -d "$fluka_install_path" ]; then
+    mkdir -p "$fluka_install_path"
+fi
+
 # Check FLUKA package
-fluka_package="fluka2024.1-linux-gfor64bit-yy-glibczzAA.tar.gz"
+fluka_package=$(find "$Work_Path" -type f -name "fluka2024*.tar.gz" | head -n 1)
 
 if [ -f "$fluka_package" ]; then
     echo "The file $fluka_package exists, extracting..."
     echo -e "\033[36;1m===============Checking source file ended================\033[0m"
 
-    mkdir /home/zxw/fluka
-    export FLUPRO=/home/zxw/fluka
+    # Set FLUPRO and FLUFOR environment variables
+    export FLUPRO="$fluka_install_path"
     export FLUFOR=gfortran
 
-    cp "$fluka_package" $FLUPRO
-    cd $FLUPRO
+    # Copy the FLUKA package to the installation directory
+    cp "$fluka_package" "$FLUPRO"
 
+    cd "$FLUPRO"
+
+    # Extract the FLUKA package
     tar -zxvf "$fluka_package"
 
-    # Execute make command and check its result
-    if! make; then
+    # Execute make and check its result
+    if ! make; then
         echo -e "\033[31;1mError: The make command failed during FLUKA installation. Please check for errors in the source code or missing dependencies!\033[0m"
         exit 1
     fi
 
-    # Edit.bashrc file to add environment variables
-    if grep -q "FLUPRO=/home/zxw/fluka" ~/.bashrc && grep -q "FLUFOR=gfortran" ~/.bashrc; then
-        echo -e "\033[33;1mWarning: The environment variables FLUPRO and FLUFOR are already set in.bashrc. Skipping addition.\033[0m"
+    # Check if environment variables are already set in .bashrc
+    if grep -q "FLUPRO=$FLUPRO" ~/.bashrc && grep -q "FLUFOR=gfortran" ~/.bashrc; then
+        echo -e "\033[33;1mWarning: The environment variables FLUPRO and FLUFOR are already set in .bashrc. Skipping addition.\033[0m"
     else
-        echo -e "\033[32;1mAdding environment variables to.bashrc...\033[0m"
-        echo "export FLUPRO=/home/zxw/fluka" >> ~/.bashrc
+        echo -e "\033[32;1mAdding environment variables to .bashrc...\033[0m"
+        echo "export FLUPRO=$FLUPRO" >> ~/.bashrc
         echo "export FLUFOR=gfortran" >> ~/.bashrc
+    fi
 
-        # Save and close the.bashrc file using sed
-        sed -i's/^$/exit\n/' ~/.bashrc
-    end
-
+    # Wait before finishing
     sleep 1
-    clear
 else
     echo -e "\033[31;1mError: The file $fluka_package does not exist. Please check the path or redownload it!\033[0m"
     exit 1
 fi
-
-
-
-
-#echo -e "\e[1;92mInstall Dependent Software Packages..."
-#sudo apt update && sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
-#sudo apt install -y python3-dev python3-tk
-#echo -e "\e[1;92mIPoint the "python" command to python3."
-#sudo ln -s /usr/bin/python3 /usr/bin/python
-#echo -e "\e[1;92mIPoint the "python-config" command to python3-config."
-#sudo ln -s /usr/bin/python3-config /usr/bin/python-config
-#export DISPLAY=:0
-#echo $DISPLAY
-#echo -e "\e[1;92mInstall Dependent Software Packages for Geoviewer..."
-#sudo apt-get install -y make gcc build-essential tcl-dev tk-dev 
-
-
