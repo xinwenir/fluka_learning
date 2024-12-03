@@ -124,11 +124,12 @@ check_and_extract_file() {
 echo -e "\033[36;1m=================Checking source file=================\033[0m"
 
 # Get the number of arguments passed to the script
-num_args=$#
-
-if [ $num_args == 1 ]; then
-    file=$1
-    check_and_extract_file "$file"
+# num_args=$#
+tcl_package=$(find "$Work_Path" -type f -name "tcl*.tar.gz" | head -n 1)
+tk_package=$(find "$Work_Path" -type f -name "tk*.tar.gz" | head -n 1)
+cd "$Work_Path"
+if [ -f "$tcl_package" ]; then
+    check_and_extract_file "$tcl_package"
 else
     echo "Install tk/tcl from the internet"
 
@@ -136,13 +137,19 @@ else
     # Download and process the tcl file
     tcl_url="http://prdownloads.sourceforge.net/tcl/tcl9.0.0-src.tar.gz"
     download_and_process_file "$tcl_url"
+fi
+
+cd "$Work_Path"
+if [ -f "$tk_package" ]; then
+    check_and_extract_file "$tk_package"
+else
+    echo "Install tk/tcl from the internet"
 
     cd "$Work_Path"
     # Download and process the tk file
     tk_url="http://prdownloads.sourceforge.net/tcl/tk9.0.0-src.tar.gz"
     download_and_process_file "$tk_url"
 fi
-
 #-----------------FLUKA Installation--------------------------
 
 cd "$Work_Path"
